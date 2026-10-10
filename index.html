@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Margem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Ocultar as setas numéricas nos inputs type="number" para visual mais limpo */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen p-4 sm:p-8 flex justify-center">
+
+    <div class="w-full max-w-5xl flex flex-col gap-8">
+        
+        <header class="border-b border-slate-200 pb-5">
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">Calculadora de Margem</h1>
+            <p class="text-sm text-slate-500 mt-2">Simulação e precificação de itens automotivos conforme alíquotas e variáveis </p>
+            <p class="text-3x1 font-bold-500 mt-2">Calculadora ainda não está 100%, estou confirmando margens e valores </p>
+            <p class="text-sm text-slate-500 mt-2">Última atualização: 09/10/2026 </p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            
+            <!-- 1. CÁLCULO PREÇO DE VENDA -->
+            <section class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <h2 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-3">
+                    Cálculo Preço de Venda
+                </h2>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="pvItem" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Item</label>
+                    <select id="pvItem" onchange="calcularPrecoVenda()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors cursor-pointer appearance-none">
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="pvCusto" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Custo do Item (R$)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">R$</span>
+                        <input type="number" id="pvCusto" value="0.00" step="0.01" oninput="calcularPrecoVenda()" class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="pvMargem" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Margem Desejada (%)</label>
+                    <div class="relative">
+                        <input type="number" id="pvMargem" value="0.0" step="0.01" oninput="calcularPrecoVenda()" class="w-full pl-4 pr-10 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Valor Sugerido de Venda</span>
+                        <span class="text-3xl font-extrabold text-emerald-700 tracking-tight" id="pvResultado">R$ 0,00</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. CÁLCULO DE MARGEM -->
+            <section class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <h2 class="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-3">
+                    Cálculo de Margem Efetiva
+                </h2>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="cmItem" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Item</label>
+                    <select id="cmItem" onchange="calcularMargem()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors cursor-pointer appearance-none">
+                        <!-- Options populated by JS -->
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="cmCusto" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Custo do Item (R$)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">R$</span>
+                        <input type="number" id="cmCusto" value="0.00" step="0.01" oninput="calcularMargem()" class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="cmVenda" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Valor Praticado na Venda (R$)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">R$</span>
+                        <input type="number" id="cmVenda" value="0.00" step="0.01" oninput="calcularMargem()" class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Margem Líquida</span>
+                        <span class="text-3xl font-extrabold text-blue-700 tracking-tight" id="cmResultado">0,00%</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mt-2">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">Itens cadastrados e Alíquotas base</h3>
+            <div id="tagsContainer" class="flex flex-wrap gap-2.5">
+                <!-- Tags populated by JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Central source of truth for items and deduction rates
+        const TAXAS_DEDUCAO = {
+            'Pneu LP / LL': 0.18,
+            'Câmara': 0.18,
+            'Cubo de Roda': 0.3291,
+            'Bateria': 0.18,
+            'Roda': 0.435,
+            'Lona': 0.2560,
+            'Kit Catraca': 0.435,
+            'Óleo LL': 0.634275,
+            'Óleo LP': 0.092394,
+            'Bandeja': 0.1801, 
+            'Sapata Freio': 0.1801,             
+            'Filtro de Óleo': 0.17972,
+            'Kit Amortecedor': 0.2103,
+            'Válvula de Calibragem': 0.2570,
+            'Filtro de Combustível': 0.180221,
+            'Filtro de Ar Cabine': 0.255625
+        };
+
+        // Utility to format values as BRL Currency
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Utility to format values as Percentages
+        function formatarPorcentagem(valor) {
+            return (valor * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+        }
+
+        // Initialization function to build UI dynamically
+        function inicializarInterface() {
+            const selectPv = document.getElementById('pvItem');
+            const selectCm = document.getElementById('cmItem');
+            const tagsContainer = document.getElementById('tagsContainer');
+            
+            // Sort keys alphabetically for better UX
+            const sortedItems = Object.keys(TAXAS_DEDUCAO).sort();
+
+            sortedItems.forEach(item => {
+                // Populate Selects
+                const optionPv = document.createElement('option');
+                optionPv.value = item;
+                optionPv.textContent = item;
+                selectPv.appendChild(optionPv);
+
+                const optionCm = document.createElement('option');
+                optionCm.value = item;
+                optionCm.textContent = item;
+                selectCm.appendChild(optionCm);
+
+                // Populate Tags
+                const tag = document.createElement('span');
+                const deducaoPerc = formatarPorcentagem(TAXAS_DEDUCAO[item]);
+                tag.className = "bg-slate-100 border border-slate-200 text-slate-600 text-xs font-medium px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 hover:bg-slate-200 transition-colors cursor-default";
+                tag.innerHTML = `${item} <span class="text-slate-400 font-normal">| ${deducaoPerc}</span>`;
+                tagsContainer.appendChild(tag);
+            });
+        }
+
+        // 1. Cálculo Preço de Venda
+        function calcularPrecoVenda() {
+            const item = document.getElementById('pvItem').value;
+            const custo = parseFloat(document.getElementById('pvCusto').value) || 0;
+            const margem = (parseFloat(document.getElementById('pvMargem').value) || 0) / 100;
+            const deducao = TAXAS_DEDUCAO[item] || 0.0;
+
+            const divisor = (1 - deducao) - margem;
+            const resultadoEl = document.getElementById('pvResultado');
+
+            if (divisor <= 0) {
+                resultadoEl.textContent = 'Erro de Margem';
+                resultadoEl.classList.add('text-red-600');
+                resultadoEl.classList.remove('text-emerald-700');
+                return;
+            }
+
+            const precoVenda = custo / divisor;
+            resultadoEl.classList.remove('text-red-600');
+            resultadoEl.classList.add('text-emerald-700');
+            resultadoEl.textContent = formatarMoeda(precoVenda);
+        }
+
+        // 2. Cálculo de Margem
+        function calcularMargem() {
+            const item = document.getElementById('cmItem').value;
+            const custo = parseFloat(document.getElementById('cmCusto').value) || 0;
+            const venda = parseFloat(document.getElementById('cmVenda').value) || 0;
+            const deducao = TAXAS_DEDUCAO[item] || 0.0;
+
+            const resultadoEl = document.getElementById('cmResultado');
+            
+            if (venda <= 0) {
+                resultadoEl.textContent = '0,00%';
+                resultadoEl.classList.remove('text-red-600');
+                resultadoEl.classList.add('text-blue-700');
+                return;
+            }
+
+            const margem = ((venda - custo) / venda) - deducao;
+            
+            if (margem < 0) {
+                resultadoEl.classList.add('text-red-600');
+                resultadoEl.classList.remove('text-blue-700');
+            } else {
+                resultadoEl.classList.remove('text-red-600');
+                resultadoEl.classList.add('text-blue-700');
+            }
+
+            resultadoEl.textContent = formatarPorcentagem(margem);
+        }
+
+        // Initialize script logic on window load
+        window.onload = function() {
+            inicializarInterface();
+            calcularPrecoVenda();
+            calcularMargem();
+        };
+    </script>
+</body>
+</html>
