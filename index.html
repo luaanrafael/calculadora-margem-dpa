@@ -39,7 +39,7 @@
                     <p class="text-sm text-slate-500 dark:text-slate-400">Última atualização: 20/10/2026</p>
                     <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1.5" title="A página será recarregada após 1 hora sem interação">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Atualização automática em: <strong id="inactivityTimerDisplay" class="font-medium">15:00</strong>
+                        Atualização automática em: <strong id="inactivityTimerDisplay" class="font-medium">00:10</strong>
                     </span>
                 </div>
             </div>
@@ -141,7 +141,7 @@
 
     <script>
         // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (15 MINUTOS) ---
-        const TEMPO_LIMITE_INATIVIDADE = 60 * 15 * 1000; // 15 minutos em milissegundos (900.000 ms)
+        const TEMPO_LIMITE_INATIVIDADE = 10 * 1000; // 15 minutos em milissegundos (900.000 ms)
         let timeoutInatividade;
         let intervaloContador;
         let ultimaInteracao = Date.now();
