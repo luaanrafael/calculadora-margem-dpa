@@ -37,9 +37,9 @@
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Simulação e precificação de itens automotivos conforme alíquotas e variáveis</p>
                 <div class="flex flex-wrap items-center gap-3 mt-2">
                     <p class="text-sm text-slate-500 dark:text-slate-400">Última atualização: 20/10/2026</p>
-                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1.5" title="A página será recarregada após 1 hora sem interação">
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1.5" title="A página será recarregada após 5 minutos sem interação">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Atualização automática em: <strong id="inactivityTimerDisplay" class="font-medium">05:00</strong>
+                        Auto-refresh por inatividade: <strong id="inactivityTimerDisplay" class="font-medium">05:00</strong>
                     </span>
                 </div>
             </div>
@@ -61,9 +61,21 @@
                     Cálculo Preço de Venda
                 </h2>
 
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-2">
                     <label for="pvItem" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item</label>
-                    <select id="pvItem" onchange="calcularPrecoVenda()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:focus:border-emerald-500 transition-colors cursor-pointer appearance-none">
+                    
+                    <!-- Campo de Busca com Filtro (Preço de Venda) -->
+                    <div class="relative">
+                        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="text" id="pvBusca" oninput="filtrarSelect('pvBusca', 'pvItem', calcularPrecoVenda)" placeholder="Buscar item (ex: Filtro, Pneu)..." class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors">
+                        <button type="button" id="pvBuscaClear" onclick="limparBusca('pvBusca', 'pvItem', calcularPrecoVenda)" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Limpar filtro">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <select id="pvItem" onchange="calcularPrecoVenda()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:focus:border-emerald-500 transition-colors cursor-pointer">
                         <!-- Options populated by JS -->
                     </select>
                 </div>
@@ -98,9 +110,21 @@
                     Cálculo de Margem Efetiva
                 </h2>
 
-                <div class="flex flex-col gap-1.5">
+                <div class="flex flex-col gap-2">
                     <label for="cmItem" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item</label>
-                    <select id="cmItem" onchange="calcularMargem()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors cursor-pointer appearance-none">
+
+                    <!-- Campo de Busca com Filtro (Margem Efetiva) -->
+                    <div class="relative">
+                        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="text" id="cmBusca" oninput="filtrarSelect('cmBusca', 'cmItem', calcularMargem)" placeholder="Buscar peça ou NCM (ex: Pneu, Óleo)..." class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors">
+                        <button type="button" id="cmBuscaClear" onclick="limparBusca('cmBusca', 'cmItem', calcularMargem)" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Limpar filtro">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <select id="cmItem" onchange="calcularMargem()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors cursor-pointer">
                         <!-- Options populated by JS -->
                     </select>
                 </div>
@@ -130,8 +154,21 @@
             </section>
         </main>
 
+        <!-- RODAPÉ COM TAGS E FILTRO RÁPIDO -->
         <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm mt-2 transition-colors duration-300">
-            <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Itens cadastrados e Alíquotas base</h3>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                    <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Itens cadastrados e Alíquotas base</h3>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Clique em um item abaixo para selecioná-lo automaticamente nas calculadoras</p>
+                </div>
+                <!-- Filtro de Tags do Rodapé -->
+                <div class="relative w-full sm:w-64">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" id="tagBusca" oninput="filtrarTags()" placeholder="Filtrar lista de alíquotas..." class="w-full pl-9 pr-8 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/50 transition-colors">
+                </div>
+            </div>
             <div id="tagsContainer" class="flex flex-wrap gap-2.5">
                 <!-- Tags populated by JS -->
             </div>
@@ -140,14 +177,19 @@
     </div>
 
     <script>
-        // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (15 MINUTOS) ---
-        const TEMPO_LIMITE_INATIVIDADE = 60 * 5 * 1000; // 15 minutos em milissegundos (900.000 ms)
+        // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (5 MINUTOS) ---
+        const TEMPO_LIMITE_INATIVIDADE = 5 * 60 * 1000; // 5 minutos em milissegundos (300.000 ms)
         let timeoutInatividade;
         let intervaloContador;
         let ultimaInteracao = Date.now();
 
-        function recarregarPaginaPorInatividade() {
-            window.location.reload();
+        function resetarTimerInatividade() {
+            ultimaInteracao = Date.now();
+            clearTimeout(timeoutInatividade);
+            timeoutInatividade = setTimeout(() => {
+                window.location.reload();
+            }, TEMPO_LIMITE_INATIVIDADE);
+            atualizarDisplayInatividade();
         }
 
         function atualizarDisplayInatividade() {
@@ -156,40 +198,31 @@
 
             const tempoDecorrido = Date.now() - ultimaInteracao;
             const tempoRestanteMs = Math.max(0, TEMPO_LIMITE_INATIVIDADE - tempoDecorrido);
+            
             const totalSegundos = Math.ceil(tempoRestanteMs / 1000);
-
             const minutos = Math.floor(totalSegundos / 60);
             const segundos = totalSegundos % 60;
 
             displayEl.textContent = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
         }
 
-        function resetarTimerInatividade() {
-            ultimaInteracao = Date.now();
-            clearTimeout(timeoutInatividade);
-            timeoutInatividade = setTimeout(recarregarPaginaPorInatividade, TEMPO_LIMITE_INATIVIDADE);
-            atualizarDisplayInatividade();
-        }
-
         function iniciarMonitorDeInatividade() {
-            // Lista de eventos que indicam atividade do usuário na página
-            const eventosDeAtividade = [
-                'mousemove',
-                'mousedown',
-                'keydown',
-                'scroll',
-                'touchstart',
-                'click',
-                'input',
+            const eventosInteracao = [
+                'mousemove', 
+                'mousedown', 
+                'keydown', 
+                'scroll', 
+                'touchstart', 
+                'click', 
+                'input', 
                 'change'
             ];
 
-            eventosDeAtividade.forEach(evento => {
+            eventosInteracao.forEach(evento => {
                 window.addEventListener(evento, resetarTimerInatividade, { passive: true });
             });
 
             resetarTimerInatividade();
-            clearInterval(intervaloContador);
             intervaloContador = setInterval(atualizarDisplayInatividade, 1000);
         }
 
@@ -218,15 +251,13 @@
         function atualizarIconeTema(tema) {
             const iconEl = document.getElementById('themeIcon');
             if (tema === 'dark') {
-                // Ícone de Sol
                 iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
             } else {
-                // Ícone de Lua
                 iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
             }
         }
 
-        // --- CÓDIGO ORIGINAL DA CALCULADORA ---
+        // --- DADOS E FUNÇÕES DE BUSCA / FILTRO ---
         const TAXAS_DEDUCAO = {
             'Pneu LP / LL': 0.18,
             'Bucha da Bandeja': 0.255935,
@@ -252,6 +283,13 @@
             'Filtro de Ar Cabine': 0.255625
         };
 
+        const ITENS_ORDENADOS = Object.keys(TAXAS_DEDUCAO).sort();
+
+        // Remove acentos e deixa em minúsculas para busca inteligente
+        function normalizarTexto(texto) {
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+
         function formatarMoeda(valor) {
             return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
@@ -260,31 +298,123 @@
             return (valor * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
         }
 
-        function inicializarInterface() {
-            const selectPv = document.getElementById('pvItem');
-            const selectCm = document.getElementById('cmItem');
+        // Filtra as opções de um <select> com base no texto digitado
+        function filtrarSelect(inputId, selectId, callbackCalculo) {
+            const inputEl = document.getElementById(inputId);
+            const clearBtn = document.getElementById(inputId + 'Clear');
+            const selectEl = document.getElementById(selectId);
+            const termo = normalizarTexto(inputEl.value.trim());
+
+            // Mostrar/ocultar botão de limpar
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', termo.length === 0);
+            }
+
+            const valorAtual = selectEl.value;
+            selectEl.innerHTML = '';
+
+            const itensFiltrados = ITENS_ORDENADOS.filter(item => {
+                const textoItem = normalizarTexto(item);
+                const aliqTexto = formatarPorcentagem(TAXAS_DEDUCAO[item]);
+                return textoItem.includes(termo) || aliqTexto.includes(termo);
+            });
+
+            if (itensFiltrados.length === 0) {
+                const optVazio = document.createElement('option');
+                optVazio.value = '';
+                optVazio.disabled = true;
+                optVazio.selected = true;
+                optVazio.textContent = 'Nenhum item encontrado...';
+                selectEl.appendChild(optVazio);
+            } else {
+                itensFiltrados.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    selectEl.appendChild(option);
+                });
+
+                // Mantém o item selecionado se ele ainda estiver na lista filtrada; caso contrário, seleciona o primeiro
+                if (itensFiltrados.includes(valorAtual)) {
+                    selectEl.value = valorAtual;
+                } else {
+                    selectEl.value = itensFiltrados[0];
+                }
+            }
+
+            if (typeof callbackCalculo === 'function') {
+                callbackCalculo();
+            }
+        }
+
+        function limparBusca(inputId, selectId, callbackCalculo) {
+            const inputEl = document.getElementById(inputId);
+            inputEl.value = '';
+            filtrarSelect(inputId, selectId, callbackCalculo);
+            inputEl.focus();
+        }
+
+        // Seleciona o item nos dois blocos ao clicar em uma tag do rodapé
+        function selecionarItemPorTag(item) {
+            // Limpa filtros ativos nas calculadoras para garantir que o item apareça
+            document.getElementById('pvBusca').value = '';
+            document.getElementById('cmBusca').value = '';
+            filtrarSelect('pvBusca', 'pvItem', null);
+            filtrarSelect('cmBusca', 'cmItem', null);
+
+            document.getElementById('pvItem').value = item;
+            document.getElementById('cmItem').value = item;
+
+            calcularPrecoVenda();
+            calcularMargem();
+            renderizarTags();
+        }
+
+        function renderizarTags() {
             const tagsContainer = document.getElementById('tagsContainer');
+            const termoTag = normalizarTexto((document.getElementById('tagBusca')?.value || '').trim());
+            const pvSelecionado = document.getElementById('pvItem')?.value;
+            const cmSelecionado = document.getElementById('cmItem')?.value;
 
-            const sortedItems = Object.keys(TAXAS_DEDUCAO).sort();
+            tagsContainer.innerHTML = '';
 
-            sortedItems.forEach(item => {
-                const optionPv = document.createElement('option');
-                optionPv.value = item;
-                optionPv.textContent = item;
-                selectPv.appendChild(optionPv);
+            const itensFiltrados = ITENS_ORDENADOS.filter(item => {
+                const textoItem = normalizarTexto(item);
+                const aliqTexto = formatarPorcentagem(TAXAS_DEDUCAO[item]);
+                return textoItem.includes(termoTag) || aliqTexto.includes(termoTag);
+            });
 
-                const optionCm = document.createElement('option');
-                optionCm.value = item;
-                optionCm.textContent = item;
-                selectCm.appendChild(optionCm);
+            if (itensFiltrados.length === 0) {
+                tagsContainer.innerHTML = `<span class="text-xs text-slate-400 dark:text-slate-500 italic py-1">Nenhuma alíquota encontrada para este filtro.</span>`;
+                return;
+            }
 
-                // Tags atualizadas com classes para o Dark Mode
-                const tag = document.createElement('span');
+            itensFiltrados.forEach(item => {
+                const tag = document.createElement('button');
+                tag.type = 'button';
                 const deducaoPerc = formatarPorcentagem(TAXAS_DEDUCAO[item]);
-                tag.className = "bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-medium px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-default";
-                tag.innerHTML = `${item} <span class="text-slate-400 dark:text-slate-400 font-normal">| ${deducaoPerc}</span>`;
+                const isSelected = (item === pvSelecionado || item === cmSelecionado);
+
+                const baseClasses = "text-xs font-medium px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 transition-all cursor-pointer border ";
+                const activeClasses = "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-400 dark:border-emerald-600 text-emerald-800 dark:text-emerald-300 shadow-sm";
+                const inactiveClasses = "bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600";
+
+                tag.className = baseClasses + (isSelected ? activeClasses : inactiveClasses);
+                tag.onclick = () => selecionarItemPorTag(item);
+                tag.title = `Clique para selecionar "${item}" nas calculadoras`;
+                tag.innerHTML = `${item} <span class="opacity-70 font-normal">| ${deducaoPerc}</span>`;
                 tagsContainer.appendChild(tag);
             });
+        }
+
+        function filtrarTags() {
+            renderizarTags();
+        }
+
+        function inicializarInterface() {
+            filtrarSelect('pvBusca', 'pvItem', null);
+            filtrarSelect('cmBusca', 'cmItem', null);
+            renderizarTags();
         }
 
         function calcularPrecoVenda() {
@@ -296,10 +426,13 @@
             const divisor = (1 - deducao) - margem;
             const resultadoEl = document.getElementById('pvResultado');
 
-            if (divisor <= 0) {
-                resultadoEl.textContent = 'Erro de Margem';
-                resultadoEl.classList.add('text-red-600', 'dark:text-red-400');
-                resultadoEl.classList.remove('text-emerald-700', 'dark:text-emerald-400');
+            if (!item || divisor <= 0) {
+                resultadoEl.textContent = !item ? 'R$ 0,00' : 'Erro de Margem';
+                if (item && divisor <= 0) {
+                    resultadoEl.classList.add('text-red-600', 'dark:text-red-400');
+                    resultadoEl.classList.remove('text-emerald-700', 'dark:text-emerald-400');
+                }
+                renderizarTags();
                 return;
             }
 
@@ -307,6 +440,7 @@
             resultadoEl.classList.remove('text-red-600', 'dark:text-red-400');
             resultadoEl.classList.add('text-emerald-700', 'dark:text-emerald-400');
             resultadoEl.textContent = formatarMoeda(precoVenda);
+            renderizarTags();
         }
 
         function calcularMargem() {
@@ -317,10 +451,11 @@
 
             const resultadoEl = document.getElementById('cmResultado');
 
-            if (venda <= 0) {
+            if (!item || venda <= 0) {
                 resultadoEl.textContent = '0,00%';
                 resultadoEl.classList.remove('text-red-600', 'dark:text-red-400');
                 resultadoEl.classList.add('text-blue-700', 'dark:text-blue-400');
+                renderizarTags();
                 return;
             }
 
@@ -335,6 +470,7 @@
             }
 
             resultadoEl.textContent = formatarPorcentagem(margem);
+            renderizarTags();
         }
 
         window.onload = function() {
