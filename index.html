@@ -31,11 +31,17 @@
 
     <div class="w-full max-w-5xl flex flex-col gap-8">
 
-        <header class="border-b border-slate-200 dark:border-slate-700 pb-5 flex justify-between items-start">
+        <header class="border-b border-slate-200 dark:border-slate-700 pb-5 flex justify-between items-start gap-4">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Calculadora de Margem</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Simulação e precificação de itens automotivos conforme alíquotas e variáveis </p>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Última atualização: 20/10/2026 </p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Simulação e precificação de itens automotivos conforme alíquotas e variáveis</p>
+                <div class="flex flex-wrap items-center gap-3 mt-2">
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Última atualização: 20/10/2026</p>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1.5" title="A página será recarregada após 1 hora sem interação">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Atualização automática em: <strong id="inactivityTimerDisplay" class="font-medium">15:00</strong>
+                    </span>
+                </div>
             </div>
             
             <!-- Botão do Modo Escuro -->
@@ -134,6 +140,59 @@
     </div>
 
     <script>
+        // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (15 MINUTOS) ---
+        const TEMPO_LIMITE_INATIVIDADE = 60 * 15 * 1000; // 15 minutos em milissegundos (900.000 ms)
+        let timeoutInatividade;
+        let intervaloContador;
+        let ultimaInteracao = Date.now();
+
+        function recarregarPaginaPorInatividade() {
+            window.location.reload();
+        }
+
+        function atualizarDisplayInatividade() {
+            const displayEl = document.getElementById('inactivityTimerDisplay');
+            if (!displayEl) return;
+
+            const tempoDecorrido = Date.now() - ultimaInteracao;
+            const tempoRestanteMs = Math.max(0, TEMPO_LIMITE_INATIVIDADE - tempoDecorrido);
+            const totalSegundos = Math.ceil(tempoRestanteMs / 1000);
+
+            const minutos = Math.floor(totalSegundos / 60);
+            const segundos = totalSegundos % 60;
+
+            displayEl.textContent = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+        }
+
+        function resetarTimerInatividade() {
+            ultimaInteracao = Date.now();
+            clearTimeout(timeoutInatividade);
+            timeoutInatividade = setTimeout(recarregarPaginaPorInatividade, TEMPO_LIMITE_INATIVIDADE);
+            atualizarDisplayInatividade();
+        }
+
+        function iniciarMonitorDeInatividade() {
+            // Lista de eventos que indicam atividade do usuário na página
+            const eventosDeAtividade = [
+                'mousemove',
+                'mousedown',
+                'keydown',
+                'scroll',
+                'touchstart',
+                'click',
+                'input',
+                'change'
+            ];
+
+            eventosDeAtividade.forEach(evento => {
+                window.addEventListener(evento, resetarTimerInatividade, { passive: true });
+            });
+
+            resetarTimerInatividade();
+            clearInterval(intervaloContador);
+            intervaloContador = setInterval(atualizarDisplayInatividade, 1000);
+        }
+
         // --- GERENCIAMENTO DE TEMA (DARK MODE) ---
         function toggleTheme() {
             const htmlEl = document.documentElement;
@@ -283,6 +342,7 @@
             inicializarInterface();
             calcularPrecoVenda();
             calcularMargem();
+            iniciarMonitorDeInatividade();
         };
     </script>
 </body>
