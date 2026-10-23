@@ -36,10 +36,10 @@
                 <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Calculadora de Margem</h1>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Simulação e precificação de itens automotivos conforme alíquotas e variáveis</p>
                 <div class="flex flex-wrap items-center gap-3 mt-2">
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Última atualização: 20/10/2026</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Última atualização: 23/10/2026</p>
                     <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1.5" title="A página será recarregada após 5 minutos sem interação">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Auto-refresh por inatividade: <strong id="inactivityTimerDisplay" class="font-medium">07:00</strong>
+                        Autualização de página em: <strong id="inactivityTimerDisplay" class="font-medium">22:00</strong>
                     </span>
                 </div>
             </div>
@@ -177,8 +177,8 @@
     </div>
 
     <script>
-        // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (7 MINUTOS) ---
-        const TEMPO_LIMITE_INATIVIDADE = 7 * 60 * 1000; // 7 minutos em milissegundos (420.000 ms)
+        // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (22 MINUTOS) ---
+        const TEMPO_LIMITE_INATIVIDADE = 22 * 60 * 1000; // 7 minutos em milissegundos (1.320.000 ms)
         let timeoutInatividade;
         let intervaloContador;
         let ultimaInteracao = Date.now();
