@@ -7,8 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // Habilita a funcionalidade manual de Modo Escuro no Tailwind
-        tailwind.config = {
-            darkMode: 'class',
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                darkMode: 'class',
+            };
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,16 +38,16 @@
                 <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Calculadora de Margem</h1>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Simulação e precificação de itens automotivos conforme alíquotas e variáveis</p>
                 <div class="flex flex-wrap items-center gap-3 mt-2">
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Última atualização: 23/10/2026</p>
-                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1.5" title="A página será recarregada após 5 minutos sem interação">
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Última atualização: 25/11/2026</p>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1.5" title="A página será recarregada após 22 minutos sem interação">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Autualização de página em: <strong id="inactivityTimerDisplay" class="font-medium">22:00</strong>
+                        Atualização de página em: <strong id="inactivityTimerDisplay" class="font-medium">22:00</strong>
                     </span>
                 </div>
             </div>
             
             <!-- Botão do Modo Escuro -->
-            <button onclick="toggleTheme()" id="themeToggleBtn" class="p-2.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" title="Alternar Modo Escuro">
+            <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="p-2.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" title="Alternar Modo Escuro">
                 <svg id="themeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <!-- Ícone Padrão (Lua) -->
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
@@ -75,9 +77,14 @@
                         </button>
                     </div>
 
-                    <select id="pvItem" onchange="calcularPrecoVenda()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:focus:border-emerald-500 transition-colors cursor-pointer">
+                    <select id="pvItem" onchange="aoMudarSelect('pvItem', calcularPrecoVenda)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:focus:border-emerald-500 transition-colors cursor-pointer">
                         <!-- Options populated by JS -->
                     </select>
+
+                    <!-- Atalhos clicáveis de itens mais selecionados (Preço de Venda) -->
+                    <div id="pvAtalhos" class="flex flex-wrap items-center gap-1">
+                        <!-- Shortcuts populated by JS -->
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-1.5">
@@ -124,9 +131,14 @@
                         </button>
                     </div>
 
-                    <select id="cmItem" onchange="calcularMargem()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors cursor-pointer">
+                    <select id="cmItem" onchange="aoMudarSelect('cmItem', calcularMargem)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors cursor-pointer">
                         <!-- Options populated by JS -->
                     </select>
+
+                    <!-- Atalhos clicáveis de itens mais selecionados (Margem Efetiva) -->
+                    <div id="cmAtalhos" class="flex flex-wrap items-center gap-1">
+                        <!-- Shortcuts populated by JS -->
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-1.5">
@@ -177,8 +189,26 @@
     </div>
 
     <script>
+        // --- ARMAZENAMENTO SEGURO (LOCALSTORAGE) ---
+        function lerStorage(chave, padrao = null) {
+            try {
+                const valor = localStorage.getItem(chave);
+                return valor !== null ? valor : padrao;
+            } catch (e) {
+                return padrao;
+            }
+        }
+
+        function gravarStorage(chave, valor) {
+            try {
+                localStorage.setItem(chave, valor);
+            } catch (e) {
+                // Ignora caso o navegador bloqueie localStorage em modo restrito
+            }
+        }
+
         // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (22 MINUTOS) ---
-        const TEMPO_LIMITE_INATIVIDADE = 22 * 60 * 1000; // 7 minutos em milissegundos (1.320.000 ms)
+        const TEMPO_LIMITE_INATIVIDADE = 22 * 60 * 1000; // 22 minutos em milissegundos (1.320.000 ms)
         let timeoutInatividade;
         let intervaloContador;
         let ultimaInteracao = Date.now();
@@ -231,17 +261,17 @@
             const htmlEl = document.documentElement;
             if (htmlEl.classList.contains('dark')) {
                 htmlEl.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
+                gravarStorage('theme', 'light');
                 atualizarIconeTema('light');
             } else {
                 htmlEl.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
+                gravarStorage('theme', 'dark');
                 atualizarIconeTema('dark');
             }
         }
 
         function carregarTema() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedTheme = lerStorage('theme', 'light');
             if (savedTheme === 'dark') {
                 document.documentElement.classList.add('dark');
             }
@@ -250,6 +280,7 @@
 
         function atualizarIconeTema(tema) {
             const iconEl = document.getElementById('themeIcon');
+            if (!iconEl) return;
             if (tema === 'dark') {
                 iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
             } else {
@@ -284,6 +315,158 @@
         };
 
         const ITENS_ORDENADOS = Object.keys(TAXAS_DEDUCAO).sort();
+
+        // --- ATALHOS DE ITENS MAIS SELECIONADOS (COM ITEM FIXO) ---
+        const ITEM_FIXO_ATALHO = 'Pneu LP / LL';
+        const MAX_ATALHOS_DINAMICOS = 3; // Exibe o item fixo + até 3 itens mais usados
+        const STORAGE_KEY_FREQUENCIA = 'calc_margem_itens_frequencia_v1';
+
+        let frequenciaItens = {};
+
+        function carregarFrequenciaItens() {
+            try {
+                const salvo = lerStorage(STORAGE_KEY_FREQUENCIA);
+                if (salvo) {
+                    const parsed = JSON.parse(salvo);
+                    if (parsed && typeof parsed === 'object') {
+                        frequenciaItens = parsed;
+                        return;
+                    }
+                }
+            } catch (e) {
+                // Em caso de JSON inválido, reinicia o contador
+            }
+            frequenciaItens = {};
+        }
+
+        function salvarFrequenciaItens() {
+            gravarStorage(STORAGE_KEY_FREQUENCIA, JSON.stringify(frequenciaItens));
+        }
+
+        function registrarSelecaoItem(item) {
+            if (!item || !(item in TAXAS_DEDUCAO)) return;
+            frequenciaItens[item] = (frequenciaItens[item] || 0) + 1;
+            salvarFrequenciaItens();
+            renderizarTodosAtalhos();
+        }
+
+        function obterListaAtalhos() {
+            // Garante o item fixo sempre na primeira posição
+            const atalhos = [];
+            if (ITEM_FIXO_ATALHO in TAXAS_DEDUCAO) {
+                atalhos.push({
+                    nome: ITEM_FIXO_ATALHO,
+                    fixo: true,
+                    contagem: frequenciaItens[ITEM_FIXO_ATALHO] || 0
+                });
+            }
+
+            // Ordena os demais itens pela quantidade de seleções (maior para menor)
+            const maisUsados = Object.entries(frequenciaItens)
+                .filter(([nome, qtd]) => nome !== ITEM_FIXO_ATALHO && (nome in TAXAS_DEDUCAO) && qtd > 0)
+                .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR'))
+                .slice(0, MAX_ATALHOS_DINAMICOS)
+                .map(([nome, qtd]) => ({
+                    nome,
+                    fixo: false,
+                    contagem: qtd
+                }));
+
+            return atalhos.concat(maisUsados);
+        }
+
+        function selecionarItemPorAtalho(buscaId, selectId, item, callbackCalculo) {
+            const buscaEl = document.getElementById(buscaId);
+            const selectEl = document.getElementById(selectId);
+            if (!selectEl) return;
+
+            // Limpa eventual filtro de busca para garantir que o item esteja disponível no select
+            if (buscaEl && buscaEl.value.trim() !== '') {
+                buscaEl.value = '';
+                filtrarSelect(buscaId, selectId, null);
+            }
+
+            selectEl.value = item;
+            registrarSelecaoItem(item);
+
+            if (typeof callbackCalculo === 'function') {
+                callbackCalculo();
+            }
+        }
+
+        function renderizarAtalhosContainer(containerId, buscaId, selectId, temaCor, callbackCalculo) {
+            const container = document.getElementById(containerId);
+            const selectEl = document.getElementById(selectId);
+            if (!container || !selectEl) return;
+
+            const selecionadoAtual = selectEl.value;
+            const listaAtalhos = obterListaAtalhos();
+
+            container.innerHTML = '';
+
+            // Rótulo discreto dos atalhos
+            const label = document.createElement('span');
+            label.className = 'text-[10px] font-medium text-slate-400 dark:text-slate-500 mr-0.5 select-none';
+            label.textContent = 'Atalhos:';
+            container.appendChild(label);
+
+            listaAtalhos.forEach(atalho => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                const ativo = (atalho.nome === selecionadoAtual);
+
+                const baseClasses = 'text-[10px] leading-tight font-medium px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition-all cursor-pointer border max-w-[140px] ';
+                let corClasses = '';
+
+                if (ativo) {
+                    if (temaCor === 'emerald') {
+                        corClasses = 'bg-emerald-100 dark:bg-emerald-900/40 border-emerald-400 dark:border-emerald-600 text-emerald-800 dark:text-emerald-300 shadow-sm';
+                    } else {
+                        corClasses = 'bg-blue-100 dark:bg-blue-900/40 border-blue-400 dark:border-blue-600 text-blue-800 dark:text-blue-300 shadow-sm';
+                    }
+                } else {
+                    corClasses = 'bg-slate-100 dark:bg-slate-900/70 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
+                }
+
+                btn.className = baseClasses + corClasses;
+                btn.onclick = () => selecionarItemPorAtalho(buscaId, selectId, atalho.nome, callbackCalculo);
+                btn.title = atalho.fixo
+                    ? `Atalho fixo: ${atalho.nome}`
+                    : `${atalho.nome} (selecionado ${atalho.contagem}x)`;
+
+                // Ícone de estrela discreto para o item fixo
+                if (atalho.fixo) {
+                    const pinIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    pinIcon.setAttribute('class', 'w-2.5 h-2.5 shrink-0 opacity-75');
+                    pinIcon.setAttribute('fill', 'currentColor');
+                    pinIcon.setAttribute('viewBox', '0 0 20 20');
+                    pinIcon.innerHTML = '<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>';
+                    btn.appendChild(pinIcon);
+                }
+
+                const textoSpan = document.createElement('span');
+                textoSpan.className = 'truncate';
+                textoSpan.textContent = atalho.nome;
+                btn.appendChild(textoSpan);
+
+                container.appendChild(btn);
+            });
+        }
+
+        function renderizarTodosAtalhos() {
+            renderizarAtalhosContainer('pvAtalhos', 'pvBusca', 'pvItem', 'emerald', calcularPrecoVenda);
+            renderizarAtalhosContainer('cmAtalhos', 'cmBusca', 'cmItem', 'blue', calcularMargem);
+        }
+
+        function aoMudarSelect(selectId, callbackCalculo) {
+            const selectEl = document.getElementById(selectId);
+            if (selectEl && selectEl.value) {
+                registrarSelecaoItem(selectEl.value);
+            }
+            if (typeof callbackCalculo === 'function') {
+                callbackCalculo();
+            }
+        }
 
         // Remove acentos e deixa em minúsculas para busca inteligente
         function normalizarTexto(texto) {
@@ -365,6 +548,7 @@
             document.getElementById('pvItem').value = item;
             document.getElementById('cmItem').value = item;
 
+            registrarSelecaoItem(item);
             calcularPrecoVenda();
             calcularMargem();
             renderizarTags();
@@ -414,6 +598,7 @@
         function inicializarInterface() {
             filtrarSelect('pvBusca', 'pvItem', null);
             filtrarSelect('cmBusca', 'cmItem', null);
+            renderizarTodosAtalhos();
             renderizarTags();
         }
 
@@ -432,6 +617,7 @@
                     resultadoEl.classList.add('text-red-600', 'dark:text-red-400');
                     resultadoEl.classList.remove('text-emerald-700', 'dark:text-emerald-400');
                 }
+                renderizarTodosAtalhos();
                 renderizarTags();
                 return;
             }
@@ -440,6 +626,7 @@
             resultadoEl.classList.remove('text-red-600', 'dark:text-red-400');
             resultadoEl.classList.add('text-emerald-700', 'dark:text-emerald-400');
             resultadoEl.textContent = formatarMoeda(precoVenda);
+            renderizarTodosAtalhos();
             renderizarTags();
         }
 
@@ -455,6 +642,7 @@
                 resultadoEl.textContent = '0,00%';
                 resultadoEl.classList.remove('text-red-600', 'dark:text-red-400');
                 resultadoEl.classList.add('text-blue-700', 'dark:text-blue-400');
+                renderizarTodosAtalhos();
                 renderizarTags();
                 return;
             }
@@ -470,11 +658,13 @@
             }
 
             resultadoEl.textContent = formatarPorcentagem(margem);
+            renderizarTodosAtalhos();
             renderizarTags();
         }
 
         window.onload = function() {
             carregarTema();
+            carregarFrequenciaItens();
             inicializarInterface();
             calcularPrecoVenda();
             calcularMargem();
