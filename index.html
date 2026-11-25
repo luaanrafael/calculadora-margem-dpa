@@ -27,6 +27,20 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
+        /* Barra de rolagem discreta para a lista suspensa unificada */
+        .combobox-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        .combobox-dropdown::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .combobox-dropdown::-webkit-scrollbar-thumb {
+            background-color: rgba(148, 163, 184, 0.45);
+            border-radius: 9999px;
+        }
+        .combobox-dropdown::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(148, 163, 184, 0.7);
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased min-h-screen p-4 sm:p-8 flex justify-center transition-colors duration-300">
@@ -64,22 +78,39 @@
                 </h2>
 
                 <div class="flex flex-col gap-2">
-                    <label for="pvItem" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item</label>
+                    <label for="pvBusca" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item</label>
                     
-                    <!-- Campo de Busca com Filtro (Preço de Venda) -->
-                    <div class="relative">
+                    <!-- Campo Unificado: Busca + Lista Suspensa (Preço de Venda) -->
+                    <div id="pvCombobox" class="relative">
+                        <input type="hidden" id="pvItem" value="">
                         <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <input type="text" id="pvBusca" oninput="filtrarSelect('pvBusca', 'pvItem', calcularPrecoVenda)" placeholder="Buscar item (ex: Filtro, Pneu)..." class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors">
-                        <button type="button" id="pvBuscaClear" onclick="limparBusca('pvBusca', 'pvItem', calcularPrecoVenda)" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Limpar filtro">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
+                        <input
+                            type="text"
+                            id="pvBusca"
+                            autocomplete="off"
+                            onfocus="aoFocarCombobox('pv')"
+                            onclick="aoClicarInputCombobox('pv')"
+                            oninput="aoDigitarCombobox('pv')"
+                            onkeydown="aoTeclarCombobox(event, 'pv')"
+                            placeholder="Buscar ou selecionar item..."
+                            class="w-full pl-10 pr-16 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:focus:border-emerald-500 transition-colors"
+                        >
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                            <button type="button" id="pvBuscaClear" onmousedown="event.preventDefault()" onclick="limparCombobox('pv')" class="hidden p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded transition-colors" title="Limpar busca">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            <button type="button" id="pvToggleBtn" onmousedown="event.preventDefault()" onclick="alternarCombobox('pv')" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded transition-colors" title="Abrir lista de itens">
+                                <svg id="pvChevron" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </div>
 
-                    <select id="pvItem" onchange="aoMudarSelect('pvItem', calcularPrecoVenda)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 dark:focus:border-emerald-500 transition-colors cursor-pointer">
-                        <!-- Options populated by JS -->
-                    </select>
+                        <!-- Lista suspensa dinâmica -->
+                        <div id="pvDropdown" class="combobox-dropdown hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-60 overflow-y-auto py-1" role="listbox">
+                            <!-- Options populated by JS -->
+                        </div>
+                    </div>
 
                     <!-- Atalhos clicáveis de itens mais selecionados (Preço de Venda) -->
                     <div id="pvAtalhos" class="flex flex-wrap items-center gap-1">
@@ -118,22 +149,39 @@
                 </h2>
 
                 <div class="flex flex-col gap-2">
-                    <label for="cmItem" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item</label>
+                    <label for="cmBusca" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Item</label>
 
-                    <!-- Campo de Busca com Filtro (Margem Efetiva) -->
-                    <div class="relative">
+                    <!-- Campo Unificado: Busca + Lista Suspensa (Margem Efetiva) -->
+                    <div id="cmCombobox" class="relative">
+                        <input type="hidden" id="cmItem" value="">
                         <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <input type="text" id="cmBusca" oninput="filtrarSelect('cmBusca', 'cmItem', calcularMargem)" placeholder="Buscar item (ex: Filtro, Pneu)..." class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors">
-                        <button type="button" id="cmBuscaClear" onclick="limparBusca('cmBusca', 'cmItem', calcularMargem)" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Limpar filtro">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
+                        <input
+                            type="text"
+                            id="cmBusca"
+                            autocomplete="off"
+                            onfocus="aoFocarCombobox('cm')"
+                            onclick="aoClicarInputCombobox('cm')"
+                            oninput="aoDigitarCombobox('cm')"
+                            onkeydown="aoTeclarCombobox(event, 'cm')"
+                            placeholder="Buscar ou selecionar item..."
+                            class="w-full pl-10 pr-16 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 dark:focus:border-blue-500 transition-colors"
+                        >
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                            <button type="button" id="cmBuscaClear" onmousedown="event.preventDefault()" onclick="limparCombobox('cm')" class="hidden p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded transition-colors" title="Limpar busca">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            <button type="button" id="cmToggleBtn" onmousedown="event.preventDefault()" onclick="alternarCombobox('cm')" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded transition-colors" title="Abrir lista de itens">
+                                <svg id="cmChevron" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </div>
 
-                    <select id="cmItem" onchange="aoMudarSelect('cmItem', calcularMargem)" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors cursor-pointer">
-                        <!-- Options populated by JS -->
-                    </select>
+                        <!-- Lista suspensa dinâmica -->
+                        <div id="cmDropdown" class="combobox-dropdown hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-60 overflow-y-auto py-1" role="listbox">
+                            <!-- Options populated by JS -->
+                        </div>
+                    </div>
 
                     <!-- Atalhos clicáveis de itens mais selecionados (Margem Efetiva) -->
                     <div id="cmAtalhos" class="flex flex-wrap items-center gap-1">
@@ -189,24 +237,6 @@
     </div>
 
     <script>
-        // --- ARMAZENAMENTO SEGURO (LOCALSTORAGE) ---
-        function lerStorage(chave, padrao = null) {
-            try {
-                const valor = localStorage.getItem(chave);
-                return valor !== null ? valor : padrao;
-            } catch (e) {
-                return padrao;
-            }
-        }
-
-        function gravarStorage(chave, valor) {
-            try {
-                localStorage.setItem(chave, valor);
-            } catch (e) {
-                // Ignora caso o navegador bloqueie localStorage em modo restrito
-            }
-        }
-
         // --- GERENCIAMENTO DE REFRESH POR INATIVIDADE (22 MINUTOS) ---
         const TEMPO_LIMITE_INATIVIDADE = 22 * 60 * 1000; // 22 minutos em milissegundos (1.320.000 ms)
         let timeoutInatividade;
@@ -261,17 +291,18 @@
             const htmlEl = document.documentElement;
             if (htmlEl.classList.contains('dark')) {
                 htmlEl.classList.remove('dark');
-                gravarStorage('theme', 'light');
+                try { localStorage.setItem('theme', 'light'); } catch (e) {}
                 atualizarIconeTema('light');
             } else {
                 htmlEl.classList.add('dark');
-                gravarStorage('theme', 'dark');
+                try { localStorage.setItem('theme', 'dark'); } catch (e) {}
                 atualizarIconeTema('dark');
             }
         }
 
         function carregarTema() {
-            const savedTheme = lerStorage('theme', 'light');
+            let savedTheme = 'light';
+            try { savedTheme = localStorage.getItem('theme') || 'light'; } catch (e) {}
             if (savedTheme === 'dark') {
                 document.documentElement.classList.add('dark');
             }
@@ -288,7 +319,7 @@
             }
         }
 
-        // --- DADOS E FUNÇÕES DE BUSCA / FILTRO ---
+        // --- DADOS E ALÍQUOTAS BASE ---
         const TAXAS_DEDUCAO = {
             'Pneu LP / LL': 0.18,
             'Bucha da Bandeja': 0.255935,
@@ -316,31 +347,29 @@
 
         const ITENS_ORDENADOS = Object.keys(TAXAS_DEDUCAO).sort();
 
-        // --- ATALHOS DE ITENS MAIS SELECIONADOS (COM ITEM FIXO) ---
+        // --- GERENCIAMENTO DE ATALHOS DOS ITENS MAIS SELECIONADOS ---
+        const STORAGE_KEY_FREQUENCIA = 'calc_margem_frequencia_itens_v1';
         const ITEM_FIXO_ATALHO = 'Pneu LP / LL';
-        const MAX_ATALHOS_DINAMICOS = 3; // Exibe o item fixo + até 3 itens mais usados
-        const STORAGE_KEY_FREQUENCIA = 'calc_margem_itens_frequencia_v1';
-
         let frequenciaItens = {};
 
         function carregarFrequenciaItens() {
             try {
-                const salvo = lerStorage(STORAGE_KEY_FREQUENCIA);
+                const salvo = localStorage.getItem(STORAGE_KEY_FREQUENCIA);
                 if (salvo) {
                     const parsed = JSON.parse(salvo);
                     if (parsed && typeof parsed === 'object') {
                         frequenciaItens = parsed;
-                        return;
                     }
                 }
             } catch (e) {
-                // Em caso de JSON inválido, reinicia o contador
+                frequenciaItens = {};
             }
-            frequenciaItens = {};
         }
 
         function salvarFrequenciaItens() {
-            gravarStorage(STORAGE_KEY_FREQUENCIA, JSON.stringify(frequenciaItens));
+            try {
+                localStorage.setItem(STORAGE_KEY_FREQUENCIA, JSON.stringify(frequenciaItens));
+            } catch (e) {}
         }
 
         function registrarSelecaoItem(item) {
@@ -351,8 +380,9 @@
         }
 
         function obterListaAtalhos() {
-            // Garante o item fixo sempre na primeira posição
             const atalhos = [];
+
+            // 1. Mantém a opção "Pneu LP / LL" sempre fixa como primeiro atalho
             if (ITEM_FIXO_ATALHO in TAXAS_DEDUCAO) {
                 atalhos.push({
                     nome: ITEM_FIXO_ATALHO,
@@ -361,40 +391,28 @@
                 });
             }
 
-            // Ordena os demais itens pela quantidade de seleções (maior para menor)
+            // 2. Busca até os 3 itens mais selecionados (excluindo o item fixo para não duplicar)
             const maisUsados = Object.entries(frequenciaItens)
-                .filter(([nome, qtd]) => nome !== ITEM_FIXO_ATALHO && (nome in TAXAS_DEDUCAO) && qtd > 0)
-                .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR'))
-                .slice(0, MAX_ATALHOS_DINAMICOS)
-                .map(([nome, qtd]) => ({
+                .filter(([nome, count]) => nome !== ITEM_FIXO_ATALHO && (nome in TAXAS_DEDUCAO) && count > 0)
+                .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+                .slice(0, 3);
+
+            maisUsados.forEach(([nome, count]) => {
+                atalhos.push({
                     nome,
                     fixo: false,
-                    contagem: qtd
-                }));
+                    contagem: count
+                });
+            });
 
-            return atalhos.concat(maisUsados);
+            return atalhos;
         }
 
-        function selecionarItemPorAtalho(buscaId, selectId, item, callbackCalculo) {
-            const buscaEl = document.getElementById(buscaId);
-            const selectEl = document.getElementById(selectId);
-            if (!selectEl) return;
-
-            // Limpa eventual filtro de busca para garantir que o item esteja disponível no select
-            if (buscaEl && buscaEl.value.trim() !== '') {
-                buscaEl.value = '';
-                filtrarSelect(buscaId, selectId, null);
-            }
-
-            selectEl.value = item;
-            registrarSelecaoItem(item);
-
-            if (typeof callbackCalculo === 'function') {
-                callbackCalculo();
-            }
+        function selecionarItemPorAtalho(tipo, item) {
+            selecionarItemCombobox(tipo, item);
         }
 
-        function renderizarAtalhosContainer(containerId, buscaId, selectId, temaCor, callbackCalculo) {
+        function renderizarAtalhosContainer(containerId, tipo, selectId, temaCor) {
             const container = document.getElementById(containerId);
             const selectEl = document.getElementById(selectId);
             if (!container || !selectEl) return;
@@ -429,7 +447,7 @@
                 }
 
                 btn.className = baseClasses + corClasses;
-                btn.onclick = () => selecionarItemPorAtalho(buscaId, selectId, atalho.nome, callbackCalculo);
+                btn.onclick = () => selecionarItemPorAtalho(tipo, atalho.nome);
                 btn.title = atalho.fixo
                     ? `Atalho fixo: ${atalho.nome}`
                     : `${atalho.nome} (selecionado ${atalho.contagem}x)`;
@@ -454,19 +472,38 @@
         }
 
         function renderizarTodosAtalhos() {
-            renderizarAtalhosContainer('pvAtalhos', 'pvBusca', 'pvItem', 'emerald', calcularPrecoVenda);
-            renderizarAtalhosContainer('cmAtalhos', 'cmBusca', 'cmItem', 'blue', calcularMargem);
+            renderizarAtalhosContainer('pvAtalhos', 'pv', 'pvItem', 'emerald');
+            renderizarAtalhosContainer('cmAtalhos', 'cm', 'cmItem', 'blue');
         }
 
-        function aoMudarSelect(selectId, callbackCalculo) {
-            const selectEl = document.getElementById(selectId);
-            if (selectEl && selectEl.value) {
-                registrarSelecaoItem(selectEl.value);
+        // --- COMBOBOX UNIFICADO (BUSCA + LISTA SUSPENSA) ---
+        const COMBOBOX_CONFIG = {
+            pv: {
+                wrapperId: 'pvCombobox',
+                inputId: 'pvBusca',
+                hiddenId: 'pvItem',
+                dropdownId: 'pvDropdown',
+                clearId: 'pvBuscaClear',
+                chevronId: 'pvChevron',
+                temaCor: 'emerald',
+                callback: () => calcularPrecoVenda()
+            },
+            cm: {
+                wrapperId: 'cmCombobox',
+                inputId: 'cmBusca',
+                hiddenId: 'cmItem',
+                dropdownId: 'cmDropdown',
+                clearId: 'cmBuscaClear',
+                chevronId: 'cmChevron',
+                temaCor: 'blue',
+                callback: () => calcularMargem()
             }
-            if (typeof callbackCalculo === 'function') {
-                callbackCalculo();
-            }
-        }
+        };
+
+        const comboboxEstado = {
+            pv: { aberto: false, indiceDestaque: -1, itensFiltrados: [] },
+            cm: { aberto: false, indiceDestaque: -1, itensFiltrados: [] }
+        };
 
         // Remove acentos e deixa em minúsculas para busca inteligente
         function normalizarTexto(texto) {
@@ -481,72 +518,316 @@
             return (valor * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
         }
 
-        // Filtra as opções de um <select> com base no texto digitado
-        function filtrarSelect(inputId, selectId, callbackCalculo) {
-            const inputEl = document.getElementById(inputId);
-            const clearBtn = document.getElementById(inputId + 'Clear');
-            const selectEl = document.getElementById(selectId);
-            const termo = normalizarTexto(inputEl.value.trim());
+        function atualizarBotaoLimpar(tipo) {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const inputEl = document.getElementById(cfg.inputId);
+            const clearBtn = document.getElementById(cfg.clearId);
+            if (!inputEl || !clearBtn) return;
+            clearBtn.classList.toggle('hidden', inputEl.value.trim().length === 0);
+        }
 
-            // Mostrar/ocultar botão de limpar
-            if (clearBtn) {
-                clearBtn.classList.toggle('hidden', termo.length === 0);
-            }
+        function renderizarOpcoesCombobox(tipo, termoFiltro = '') {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const estado = comboboxEstado[tipo];
+            const dropdownEl = document.getElementById(cfg.dropdownId);
+            const hiddenEl = document.getElementById(cfg.hiddenId);
+            if (!dropdownEl || !hiddenEl) return;
 
-            const valorAtual = selectEl.value;
-            selectEl.innerHTML = '';
+            const termo = normalizarTexto(termoFiltro.trim());
+            const itemSelecionado = hiddenEl.value;
 
-            const itensFiltrados = ITENS_ORDENADOS.filter(item => {
-                const textoItem = normalizarTexto(item);
-                const aliqTexto = formatarPorcentagem(TAXAS_DEDUCAO[item]);
-                return textoItem.includes(termo) || aliqTexto.includes(termo);
-            });
-
-            if (itensFiltrados.length === 0) {
-                const optVazio = document.createElement('option');
-                optVazio.value = '';
-                optVazio.disabled = true;
-                optVazio.selected = true;
-                optVazio.textContent = 'Nenhum item encontrado...';
-                selectEl.appendChild(optVazio);
-            } else {
-                itensFiltrados.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item;
-                    option.textContent = item;
-                    selectEl.appendChild(option);
+            const itensFiltrados = termo === ''
+                ? [...ITENS_ORDENADOS]
+                : ITENS_ORDENADOS.filter(item => {
+                    const textoItem = normalizarTexto(item);
+                    const aliqTexto = formatarPorcentagem(TAXAS_DEDUCAO[item]);
+                    return textoItem.includes(termo) || aliqTexto.includes(termo);
                 });
 
-                // Mantém o item selecionado se ele ainda estiver na lista filtrada; caso contrário, seleciona o primeiro
-                if (itensFiltrados.includes(valorAtual)) {
-                    selectEl.value = valorAtual;
-                } else {
-                    selectEl.value = itensFiltrados[0];
-                }
+            estado.itensFiltrados = itensFiltrados;
+            dropdownEl.innerHTML = '';
+
+            if (itensFiltrados.length === 0) {
+                estado.indiceDestaque = -1;
+                const vazio = document.createElement('div');
+                vazio.className = 'px-4 py-3 text-xs text-slate-400 dark:text-slate-500 italic text-center';
+                vazio.textContent = 'Nenhum item encontrado...';
+                dropdownEl.appendChild(vazio);
+                return;
             }
 
-            if (typeof callbackCalculo === 'function') {
-                callbackCalculo();
+            // Define o destaque inicial no item já selecionado ou no primeiro da busca
+            if (termo === '') {
+                estado.indiceDestaque = itensFiltrados.indexOf(itemSelecionado);
+            } else {
+                estado.indiceDestaque = 0;
+            }
+
+            itensFiltrados.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('role', 'option');
+                btn.dataset.index = index;
+
+                const isSelected = (item === itemSelecionado);
+                const isDestaque = (index === estado.indiceDestaque);
+
+                btn.className = obterClassesOpcaoCombobox(cfg.temaCor, isSelected, isDestaque);
+
+                // onmousedown com preventDefault evita que o blur feche a lista antes do clique
+                btn.onmousedown = (e) => e.preventDefault();
+                btn.onmouseenter = () => {
+                    estado.indiceDestaque = index;
+                    atualizarDestaqueTeclado(tipo, false);
+                };
+                btn.onclick = () => selecionarItemCombobox(tipo, item);
+
+                const nomeSpan = document.createElement('span');
+                nomeSpan.className = 'truncate';
+                nomeSpan.textContent = item;
+                btn.appendChild(nomeSpan);
+
+                if (isSelected) {
+                    const checkIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    checkIcon.setAttribute('class', 'w-4 h-4 shrink-0');
+                    checkIcon.setAttribute('fill', 'none');
+                    checkIcon.setAttribute('stroke', 'currentColor');
+                    checkIcon.setAttribute('viewBox', '0 0 24 24');
+                    checkIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+                    btn.appendChild(checkIcon);
+                }
+
+                dropdownEl.appendChild(btn);
+            });
+
+            // Garante que o item selecionado apareça visível ao abrir a lista completa
+            if (termo === '' && estado.indiceDestaque >= 0) {
+                const ativoEl = dropdownEl.querySelector(`[data-index="${estado.indiceDestaque}"]`);
+                if (ativoEl) {
+                    ativoEl.scrollIntoView({ block: 'nearest' });
+                }
             }
         }
 
-        function limparBusca(inputId, selectId, callbackCalculo) {
-            const inputEl = document.getElementById(inputId);
+        function obterClassesOpcaoCombobox(temaCor, isSelected, isDestaque) {
+            const base = 'w-full text-left px-3.5 py-2 text-sm flex items-center justify-between gap-2 transition-colors cursor-pointer ';
+            if (isSelected) {
+                if (temaCor === 'emerald') {
+                    return base + (isDestaque
+                        ? 'bg-emerald-100/90 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-medium'
+                        : 'bg-emerald-50/70 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-medium');
+                }
+                return base + (isDestaque
+                    ? 'bg-blue-100/90 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 font-medium'
+                    : 'bg-blue-50/70 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium');
+            }
+            if (isDestaque) {
+                return base + 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white';
+            }
+            return base + 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800';
+        }
+
+        function atualizarDestaqueTeclado(tipo, rolarParaVisivel = true) {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const estado = comboboxEstado[tipo];
+            const dropdownEl = document.getElementById(cfg.dropdownId);
+            const hiddenEl = document.getElementById(cfg.hiddenId);
+            if (!dropdownEl || !hiddenEl) return;
+
+            const itemSelecionado = hiddenEl.value;
+            const opcoes = dropdownEl.querySelectorAll('[role="option"]');
+
+            opcoes.forEach((btn, idx) => {
+                const item = estado.itensFiltrados[idx];
+                const isSelected = (item === itemSelecionado);
+                const isDestaque = (idx === estado.indiceDestaque);
+                btn.className = obterClassesOpcaoCombobox(cfg.temaCor, isSelected, isDestaque);
+
+                if (isDestaque && rolarParaVisivel) {
+                    btn.scrollIntoView({ block: 'nearest' });
+                }
+            });
+        }
+
+        function abrirCombobox(tipo, mostrarListaCompleta = true) {
+            // Fecha o outro combobox caso esteja aberto
+            const outroTipo = tipo === 'pv' ? 'cm' : 'pv';
+            if (comboboxEstado[outroTipo].aberto) {
+                fecharCombobox(outroTipo, true);
+            }
+
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const inputEl = document.getElementById(cfg.inputId);
+            const dropdownEl = document.getElementById(cfg.dropdownId);
+            const chevronEl = document.getElementById(cfg.chevronId);
+            if (!inputEl || !dropdownEl) return;
+
+            comboboxEstado[tipo].aberto = true;
+            dropdownEl.classList.remove('hidden');
+            if (chevronEl) chevronEl.classList.add('rotate-180');
+
+            renderizarOpcoesCombobox(tipo, mostrarListaCompleta ? '' : inputEl.value);
+            atualizarBotaoLimpar(tipo);
+        }
+
+        function fecharCombobox(tipo, restaurarTexto = true) {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const inputEl = document.getElementById(cfg.inputId);
+            const hiddenEl = document.getElementById(cfg.hiddenId);
+            const dropdownEl = document.getElementById(cfg.dropdownId);
+            const chevronEl = document.getElementById(cfg.chevronId);
+
+            comboboxEstado[tipo].aberto = false;
+            comboboxEstado[tipo].indiceDestaque = -1;
+
+            if (dropdownEl) dropdownEl.classList.add('hidden');
+            if (chevronEl) chevronEl.classList.remove('rotate-180');
+
+            // Garante que o campo sempre exiba o item válido atualmente em cálculo
+            if (restaurarTexto && inputEl && hiddenEl) {
+                inputEl.value = hiddenEl.value;
+            }
+            atualizarBotaoLimpar(tipo);
+        }
+
+        function aoFocarCombobox(tipo) {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const inputEl = document.getElementById(cfg.inputId);
+            abrirCombobox(tipo, true);
+            // Seleciona o texto atual para permitir digitar uma nova busca imediatamente
+            if (inputEl) {
+                setTimeout(() => {
+                    try { inputEl.select(); } catch (e) {}
+                }, 0);
+            }
+        }
+
+        function aoClicarInputCombobox(tipo) {
+            if (!comboboxEstado[tipo].aberto) {
+                abrirCombobox(tipo, true);
+            }
+        }
+
+        function alternarCombobox(tipo) {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const inputEl = document.getElementById(cfg.inputId);
+            if (comboboxEstado[tipo].aberto) {
+                fecharCombobox(tipo, true);
+            } else {
+                if (inputEl) inputEl.focus();
+                abrirCombobox(tipo, true);
+            }
+        }
+
+        function aoDigitarCombobox(tipo) {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const inputEl = document.getElementById(cfg.inputId);
+            if (!inputEl) return;
+
+            if (!comboboxEstado[tipo].aberto) {
+                abrirCombobox(tipo, false);
+            } else {
+                renderizarOpcoesCombobox(tipo, inputEl.value);
+                atualizarBotaoLimpar(tipo);
+            }
+        }
+
+        function limparCombobox(tipo) {
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const inputEl = document.getElementById(cfg.inputId);
+            if (!inputEl) return;
+
             inputEl.value = '';
-            filtrarSelect(inputId, selectId, callbackCalculo);
             inputEl.focus();
+            abrirCombobox(tipo, true);
+        }
+
+        function aoTeclarCombobox(event, tipo) {
+            const estado = comboboxEstado[tipo];
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                if (!estado.aberto) {
+                    abrirCombobox(tipo, true);
+                    return;
+                }
+                if (estado.itensFiltrados.length > 0) {
+                    estado.indiceDestaque = (estado.indiceDestaque + 1) % estado.itensFiltrados.length;
+                    atualizarDestaqueTeclado(tipo, true);
+                }
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (!estado.aberto) {
+                    abrirCombobox(tipo, true);
+                    return;
+                }
+                if (estado.itensFiltrados.length > 0) {
+                    estado.indiceDestaque = estado.indiceDestaque <= 0
+                        ? estado.itensFiltrados.length - 1
+                        : estado.indiceDestaque - 1;
+                    atualizarDestaqueTeclado(tipo, true);
+                }
+            } else if (event.key === 'Enter') {
+                if (estado.aberto) {
+                    event.preventDefault();
+                    const idx = estado.indiceDestaque >= 0 ? estado.indiceDestaque : 0;
+                    const itemEscolhido = estado.itensFiltrados[idx];
+                    if (itemEscolhido) {
+                        selecionarItemCombobox(tipo, itemEscolhido);
+                        const inputEl = document.getElementById(COMBOBOX_CONFIG[tipo].inputId);
+                        if (inputEl) inputEl.blur();
+                    }
+                }
+            } else if (event.key === 'Escape') {
+                if (estado.aberto) {
+                    event.preventDefault();
+                    fecharCombobox(tipo, true);
+                    const inputEl = document.getElementById(COMBOBOX_CONFIG[tipo].inputId);
+                    if (inputEl) inputEl.blur();
+                }
+            } else if (event.key === 'Tab') {
+                if (estado.aberto) {
+                    fecharCombobox(tipo, true);
+                }
+            }
+        }
+
+        function selecionarItemCombobox(tipo, item, registrar = true, dispararCalculo = true) {
+            if (!item || !(item in TAXAS_DEDUCAO)) return;
+
+            const cfg = COMBOBOX_CONFIG[tipo];
+            const hiddenEl = document.getElementById(cfg.hiddenId);
+            const inputEl = document.getElementById(cfg.inputId);
+
+            if (hiddenEl) hiddenEl.value = item;
+            if (inputEl) inputEl.value = item;
+
+            fecharCombobox(tipo, false);
+
+            if (registrar) {
+                registrarSelecaoItem(item);
+            }
+            if (dispararCalculo && typeof cfg.callback === 'function') {
+                cfg.callback();
+            }
+        }
+
+        function iniciarEventosGlobaisCombobox() {
+            document.addEventListener('click', (event) => {
+                ['pv', 'cm'].forEach(tipo => {
+                    if (!comboboxEstado[tipo].aberto) return;
+                    const wrapperEl = document.getElementById(COMBOBOX_CONFIG[tipo].wrapperId);
+                    if (wrapperEl && !wrapperEl.contains(event.target)) {
+                        fecharCombobox(tipo, true);
+                    }
+                });
+            });
         }
 
         // Seleciona o item nos dois blocos ao clicar em uma tag do rodapé
         function selecionarItemPorTag(item) {
-            // Limpa filtros ativos nas calculadoras para garantir que o item apareça
-            document.getElementById('pvBusca').value = '';
-            document.getElementById('cmBusca').value = '';
-            filtrarSelect('pvBusca', 'pvItem', null);
-            filtrarSelect('cmBusca', 'cmItem', null);
-
-            document.getElementById('pvItem').value = item;
-            document.getElementById('cmItem').value = item;
+            selecionarItemCombobox('pv', item, false, false);
+            selecionarItemCombobox('cm', item, false, false);
 
             registrarSelecaoItem(item);
             calcularPrecoVenda();
@@ -556,6 +837,8 @@
 
         function renderizarTags() {
             const tagsContainer = document.getElementById('tagsContainer');
+            if (!tagsContainer) return;
+
             const termoTag = normalizarTexto((document.getElementById('tagBusca')?.value || '').trim());
             const pvSelecionado = document.getElementById('pvItem')?.value;
             const cmSelecionado = document.getElementById('cmItem')?.value;
@@ -596,8 +879,9 @@
         }
 
         function inicializarInterface() {
-            filtrarSelect('pvBusca', 'pvItem', null);
-            filtrarSelect('cmBusca', 'cmItem', null);
+            const itemPadrao = ITENS_ORDENADOS[0] || '';
+            selecionarItemCombobox('pv', itemPadrao, false, false);
+            selecionarItemCombobox('cm', itemPadrao, false, false);
             renderizarTodosAtalhos();
             renderizarTags();
         }
@@ -665,6 +949,7 @@
         window.onload = function() {
             carregarTema();
             carregarFrequenciaItens();
+            iniciarEventosGlobaisCombobox();
             inicializarInterface();
             calcularPrecoVenda();
             calcularMargem();
